@@ -41,6 +41,9 @@ def get_end_of_month(day):
 
 
 def check_address():
+    if len(ADDRESS) == 0 or ADDRESS.isspace():
+        print("Empty address entered")
+        exit()
     url = "https://api.helium.io/v1/accounts/" + ADDRESS
     req = requests.get(url)
     if not req.json()["data"].get("hotspot_count"):
