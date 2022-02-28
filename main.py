@@ -2,6 +2,7 @@ import requests
 from datetime import datetime, time, timedelta, date
 import pandas as pd
 import os
+from tqdm import tqdm
 
 START = "2021-12-01"
 # Enter owners address
@@ -39,15 +40,29 @@ def get_end_of_month(day):
     return next_month - timedelta(days=next_month.day)
 
 
+def check_address():
+    url = "https://api.helium.io/v1/accounts/" + ADDRESS
+    req = requests.get(url)
+    if not req.json()["data"].get("hotspot_count"):
+        print("Invalid address entered")
+        exit()
+
+
+def check_month(hotspots, dates):
+    df = pd.read_csv("data/" + dates[0].strftime("%B%Y") + ".csv")
+    return df.keys().size == len(hotspots) + 1 and len(dates) == len(df)
+
+
 def process_month(hotspots, dates):
     df = pd.DataFrame([], columns=["date", *hotspots.keys()])
     print("Processing month: " + dates[0].strftime("%B %Y"))
-    for day in dates:
+    for day in tqdm(dates):
         df.loc[len(df.index)] = get_rewards_for_day(hotspots.values(), day)
     df.to_csv("data/" + dates[0].strftime("%B%Y") + ".csv", index=False)
 
 
 def process_rewards():
+    check_address()
     create_directory()
     hotspots = get_all_hotspots()
     months = pd.date_range(start=START, end=date.today(), freq='MS')
@@ -56,7 +71,10 @@ def process_rewards():
             dates = pd.date_range(day, date.today())
         else:
             dates = pd.date_range(day, get_end_of_month(day))
-        process_month(hotspots, dates)
+        if check_month(hotspots, dates):
+            print(dates[0].strftime("%B %Y") + " already processed")
+        else:
+            process_month(hotspots, dates)
 
 
 process_rewards()
