@@ -4,9 +4,11 @@ import pandas as pd
 import os
 from tqdm import tqdm
 
+import constants
+
 START = "2021-12-01"
 # Enter owners address
-ADDRESS = ""
+ADDRESS = constants.WALLET_ADDRESS
 
 
 def create_directory():
@@ -52,8 +54,11 @@ def check_address():
 
 
 def check_month(hotspots, dates):
-    df = pd.read_csv("data/" + dates[0].strftime("%B%Y") + ".csv")
-    return df.keys().size == len(hotspots) + 1 and len(dates) == len(df)
+    file_path = "data/" + dates[0].strftime("%B%Y") + ".csv"
+    if os.path.exists(file_path):
+        df = pd.read_csv(file_path)
+        return df.keys().size == len(hotspots) + 1 and len(dates) == len(df)
+    return False
 
 
 def process_month(hotspots, dates):

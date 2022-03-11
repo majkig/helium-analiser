@@ -133,3 +133,4 @@ dmypy.json
 
 # User generated files
 data/
+/constants.py
