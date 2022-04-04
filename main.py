@@ -56,7 +56,7 @@ def check_address():
 def check_month(hotspots, dates):
     file_path = "data/" + dates[0].strftime("%B%Y") + ".csv"
     if os.path.exists(file_path):
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, sep=';', decimal=',')
         return df.keys().size == len(hotspots) + 1 and len(dates) == len(df)
     return False
 
@@ -66,7 +66,7 @@ def process_month(hotspots, dates):
     print("Processing month: " + dates[0].strftime("%B %Y"))
     for day in tqdm(dates):
         df.loc[len(df.index)] = get_rewards_for_day(hotspots.values(), day)
-    df.to_csv("data/" + dates[0].strftime("%B%Y") + ".csv", index=False)
+    df.to_csv("data/" + dates[0].strftime("%B%Y") + ".csv", index=False, sep=';', decimal=',')
 
 
 def process_rewards():
